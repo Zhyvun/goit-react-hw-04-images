@@ -14,6 +14,10 @@ export const getImage = async (searchQuery, page) => {
     page: page,
   };
 
-  const response = await axios.get('/', {params});
-  return response.data;
+  const response = await axios.get('/', { params });
+  if (response.status === 200 && response.data) {
+    return response.data;
+  } else {
+    throw new Error('Response error: undefined or wrong status code');
+  }
 };
