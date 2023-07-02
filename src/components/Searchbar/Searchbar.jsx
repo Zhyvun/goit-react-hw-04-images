@@ -3,7 +3,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FcSearch } from 'react-icons/fc';
 import { toast } from 'react-toastify';
-import { toastConfig } from 'components/UI/toastify';
+import { toastConfig } from 'UI/toastify';
 import {
   Header,
   SearchForm,

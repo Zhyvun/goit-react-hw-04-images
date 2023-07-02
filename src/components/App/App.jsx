@@ -1,13 +1,13 @@
 // import React, { Component } from 'react';
 import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify'; // https://www.npmjs.com/package/react-toastify
-import { Modal } from '../Modal/Modal';
-import { Searchbar } from '../Searchbar/Searchbar';
-import { Button } from '../Button/Button';
-import { ImageGallery } from '../ImageGallery/ImageGallery';
-import { Loader } from '../Loader/Loader';
-import { getImage } from '../UI/api';
-import { toastConfig } from '../UI/toastify';
+import { Modal } from 'components/Modal/Modal';
+import { Searchbar } from 'components/Searchbar/Searchbar';
+import { Button } from 'components/Button/Button';
+import { ImageGallery } from 'components/ImageGallery/ImageGallery';
+import { Loader } from 'components/Loader/Loader';
+import { getImage } from 'UI/api';
+import { toastConfig } from 'UI/toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AppBox, ModalImage } from './App.styled';
 
