@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FcSearch } from 'react-icons/fc';
+import { toast } from 'react-toastify';
+import { toastConfig } from 'components/UI/toastify';
 import {
   Header,
   SearchForm,
@@ -9,6 +12,55 @@ import {
   SearchInput,
 } from './Searchbar.styled';
 
+export const Searchbar = ({ onSearchSubmit }) => {
+  const [searchValue, setValue] = useState('');
+
+  // зміна пошуку
+  const handleQueryChange = event =>
+    setValue(
+      event.currentTarget.value.toLowerCase(),
+    );
+
+  // функція пошуку
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    if (searchValue.trim() === '') {
+      toast.error('ШО? ПРОБІЛ ЗАЛІП ? ....Почисть клаву 😜', toastConfig);
+      return;
+    }
+    onSearchSubmit(searchValue);
+    setValue('');
+  };
+
+  return (
+    <Header onSubmit={handleSubmit}>
+      <SearchForm>
+        <SerarchBtn type='submit'>
+          <FcSearch style={{ width: 30, height: 30 }} />
+          <SearchBtnLabel>Search</SearchBtnLabel>
+        </SerarchBtn>
+
+        <SearchInput
+          type="text"
+          autocomplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={searchValue}
+          onChange={handleQueryChange}
+        />
+      </SearchForm>
+    </Header>
+  );
+};
+
+Searchbar.propTypes = {
+  onSearchSubmit: PropTypes.func.isRequired,
+};
+
+//CLASS
+
+/*
 export class Searchbar extends Component {
   static propTypes = {
     onSearchSubmit: PropTypes.func.isRequired,
@@ -18,20 +70,20 @@ export class Searchbar extends Component {
 
   // зміна пошуку
   handleQueryChange = event => {
-    this.setState({
+    setState({
       searchValue: event.currentTarget.value.toLowerCase(),
     });
   };
   // функція пошуку
   handleSubmit = event => {
     event.preventDefault();
-    this.props.onSearchSubmit(this.state.searchValue);
-    this.setState({ searchValue: '' });
+    props.onSearchSubmit(state.searchValue);
+    setState({ searchValue: '' });
   };
 
   render() {
     return (
-      <Header onSubmit={this.handleSubmit}>
+      <Header onSubmit={handleSubmit}>
         <SearchForm>
           <SerarchBtn>
             <FcSearch style={{ width: 30, height: 30 }} />
@@ -43,11 +95,12 @@ export class Searchbar extends Component {
             autocomplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={this.state.searchValue}
-            onChange={this.handleQueryChange}
+            value={state.searchValue}
+            onChange={handleQueryChange}
           />
         </SearchForm>
       </Header>
     );
   }
 }
+*/

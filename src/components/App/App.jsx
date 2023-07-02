@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+// import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify'; // https://www.npmjs.com/package/react-toastify
 import { Modal } from '../Modal/Modal';
 import { Searchbar } from '../Searchbar/Searchbar';
@@ -10,6 +11,95 @@ import { toastConfig } from '../UI/toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AppBox, ModalImage } from './App.styled';
 
+export const App = () => {
+  const [largeImageURL, setlargeImageURL] = useState('');
+  const [searchQuery, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [totalImages, setTotalImages] = useState(0);
+
+  useEffect(() => {
+    //задаємо параметри пошуку та номер сторінки
+    if (!searchQuery) return; //дістаємо значення шо зараз є в поточному стані
+
+    getImage(searchQuery, page) // шукаємо і передаємо нові значення
+      .then(({ hits: newHits, totalHits }) => {
+        if (newHits.length === 0 && newHits.length === totalHits) {
+          toast.error(
+            'Нашкрябай щось путнє 🙄... бо нічого НИМА 😲',
+            toastConfig
+          ); //перевірка на валідність запиту
+          return;
+        }
+        if (
+          newHits.length < 12 ||
+          (newHits.length !== 0 && newHits.length < 12)
+        ) {
+          toast.info('Все! Мультікі закінчились 😉', toastConfig); // перевірка на наявність нових зображень, якщо прийло менше 12 - фініш
+        }
+
+        // Вибираєм з масива об'єкта тільки ті властивості, які використовуємо
+        const filteredNewHits = newHits.map(
+          ({ id, webformatURL, largeImageURL, tags }) => ({
+            id,
+            webformatURL,
+            largeImageURL,
+            tags,
+          })
+        );
+
+        // Виводимо нові сторінки із зображеннями що у запиті
+        setImages(prevHits => [...prevHits, ...filteredNewHits]);
+        setTotalImages(totalHits);
+      })
+      // Ловимо помилку
+      .catch(error => {
+        console.error(error.response);
+      })
+      .finally(() => setLoading(false));
+  }, [searchQuery, page]);
+
+  //Підтвердження форми пошуку
+  const hendleSearchFormSubmit = searchValue => {
+    setQuery(searchValue);
+    setPage(1);
+    setImages([]);
+    setTotalImages(0);
+  };
+
+  //функція додавання результатів
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  // метод для відкриття/закриття модального вікна
+  const toggleModal = (link = '') => setlargeImageURL(link);
+
+  // Відображення наступного масиву сторінок
+  const showLoadMoreBtn = !loading && images.length !== totalImages;
+
+  return (
+    <AppBox>
+      <Searchbar onSearchSubmit={hendleSearchFormSubmit} />
+      {images.length > 0 && (
+        <ImageGallery images={images} handleImageClick={toggleModal} />
+      )}
+      {showLoadMoreBtn && (
+        <Button onClick={handleLoadMore} disabled={loading} />
+      )}
+      {loading && <Loader />}
+      {largeImageURL && (
+        <Modal onClose={toggleModal}>
+          <ModalImage src={largeImageURL} />
+        </Modal>
+      )}
+      <ToastContainer />
+    </AppBox>
+  );
+};
+
+/* CLASS
 export class App extends Component {
   state = {
     largeImageURL: '',
@@ -22,17 +112,17 @@ export class App extends Component {
 
   //задаємо параметри пошуку та номер сторінки
   componentDidUpdate(_, prevState) {
-    const { searchQuery, page } = this.state; //дістаємо значення шо зараз є в поточному стані
+    const { searchQuery, page } = state; //дістаємо значення шо зараз є в поточному стані
 
     if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
-      if (searchQuery.trim() === '') {
-        toast.error('ШО? ПРОБІЛ ЗАЛІП ? ....Почисть клаву 😜', toastConfig);
-        return;
-      }
-      this.setState({ loading: true }); // якщо не дорівнює (змінилось) дозволяємо пошук
+      // if (searchQuery.trim() === '') {
+      //   toast.error('ШО? ПРОБІЛ ЗАЛІП ? ....Почисть клаву 😜', toastConfig);
+      //   return;
+      // }
+      setState({ loading: true }); // якщо не дорівнює (змінилось) дозволяємо пошук
       getImage(searchQuery, page) // шукаємо і передаємо нові значення
         .then(({ hits: newHits, totalHits }) => {
-          if (this.state.searchQuery.trim() === '' || totalHits === 0) {
+          if (state.searchQuery.trim() === '' || totalHits === 0) {
             toast.error(
               'Нашкрябай щось путнє 🙄... бо нічого НИМА 😲',
               toastConfig
@@ -56,7 +146,7 @@ export class App extends Component {
           );
 
           // Виводимо нові сторінки із зображеннями що у запиті
-          this.setState(prevState => ({
+          setState(prevState => ({
             hits: [...prevState.hits, ...filteredNewHits],
             totalHits,
           }));
@@ -67,14 +157,14 @@ export class App extends Component {
           console.error(error.response);
         })
         .finally(() => {
-          this.setState({ loading: false });
+          setState({ loading: false });
         });
     }
   }
 
   //Підтвердження форми пошуку
   hendleSearchFormSubmit = searchValue => {
-    this.setState({
+    setState({
       searchQuery: searchValue,
       page: 1,
       hits: [],
@@ -84,30 +174,30 @@ export class App extends Component {
 
   //функція додавання результатів
   handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+    setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   // метод для відкриття/закриття модального вікна
   toggleModal = (largeImageURL = '') => {
-    this.setState({ largeImageURL: largeImageURL });
+    setState({ largeImageURL: largeImageURL });
   };
 
   render() {
-    const { loading, hits, largeImageURL, totalHits } = this.state;
+    const { loading, hits, largeImageURL, totalHits } = state;
     const showLoadMoreBtn = !loading && hits.length !== totalHits;
 
     return (
       <AppBox>
-        <Searchbar onSearchSubmit={this.hendleSearchFormSubmit} />
+        <Searchbar onSearchSubmit={hendleSearchFormSubmit} />
         {hits.length > 0 && (
-          <ImageGallery images={hits} handleImageClick={this.toggleModal} />
+          <ImageGallery images={hits} handleImageClick={toggleModal} />
         )}
         {showLoadMoreBtn && (
-          <Button onClick={this.handleLoadMore} disabled={loading} />
+          <Button onClick={handleLoadMore} disabled={loading} />
         )}
         {loading && <Loader />}
         {largeImageURL && (
-          <Modal onClose={this.toggleModal}>
+          <Modal onClose={toggleModal}>
             <ModalImage src={largeImageURL} />
           </Modal>
         )}
@@ -116,3 +206,4 @@ export class App extends Component {
     );
   }
 }
+*/
