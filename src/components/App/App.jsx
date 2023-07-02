@@ -13,7 +13,7 @@ import { AppBox, ModalImage } from './App.styled';
 
 export const App = () => {
   const [largeImageURL, setlargeImageURL] = useState('');
-  const [searchQuery, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
@@ -22,6 +22,8 @@ export const App = () => {
   useEffect(() => {
     //задаємо параметри пошуку та номер сторінки
     if (!searchQuery) return; //дістаємо значення шо зараз є в поточному стані
+
+    setLoading(true); // Встановлюємо значення loading на true перед виконанням запиту
 
     getImage(searchQuery, page) // шукаємо і передаємо нові значення
       .then(({ hits: newHits, totalHits }) => {
@@ -61,8 +63,8 @@ export const App = () => {
   }, [searchQuery, page]);
 
   //Підтвердження форми пошуку
-  const hendleSearchFormSubmit = searchValue => {
-    setQuery(searchValue);
+  const handleSearchFormSubmit = searchValue => {
+    setSearchQuery(searchValue);
     setPage(1);
     setImages([]);
     setTotalImages(0);
@@ -81,7 +83,7 @@ export const App = () => {
 
   return (
     <AppBox>
-      <Searchbar onSearchSubmit={hendleSearchFormSubmit} />
+      <Searchbar onSearchSubmit={handleSearchFormSubmit} />
       {images.length > 0 && (
         <ImageGallery images={images} handleImageClick={toggleModal} />
       )}
@@ -163,7 +165,7 @@ export class App extends Component {
   }
 
   //Підтвердження форми пошуку
-  hendleSearchFormSubmit = searchValue => {
+  handleSearchFormSubmit = searchValue => {
     setState({
       searchQuery: searchValue,
       page: 1,
@@ -188,7 +190,7 @@ export class App extends Component {
 
     return (
       <AppBox>
-        <Searchbar onSearchSubmit={hendleSearchFormSubmit} />
+        <Searchbar onSearchSubmit={handleSearchFormSubmit} />
         {hits.length > 0 && (
           <ImageGallery images={hits} handleImageClick={toggleModal} />
         )}
